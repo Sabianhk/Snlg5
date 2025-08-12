@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(cuid())
+  username         String            @unique
+  email            String            @unique
+  passwordHash     String
+  avatarUrl        String?           
+  createdAt        DateTime          @default(now())
+  lastLoginAt      DateTime?
+  isBanned         Boolean           @default(false)
+  achievements     UserAchievement[]
+  participants     GameParticipant[]
+  moves            Move[]
+}
+
+model Game {
+  id             String            @id @default(cuid())
+  status         String            @default("PENDING")
+  winnerId       String?
+  durationSec    Int?              
+  createdAt      DateTime          @default(now())
+  completedAt    DateTime?
+  participants   GameParticipant[]
+  moves          Move[]
+}
+
+model GameParticipant {
+  id          String @id @default(cuid())
+  gameId      String
+  userId      String
+  position    Int     @default(0)
+  finalRank   Int?
+
+  game        Game   @relation(fields: [gameId], references: [id])
+  user        User   @relation(fields: [userId], references: [id])
+
+  @@unique([gameId, userId])
+}
+
+model Move {
+  id          String   @id @default(cuid())
+  gameId      String
+  playerId    String
+  diceValue   Int
+  fromSquare  Int
+  toSquare    Int
+  createdAt   DateTime @default(now())
+
+  game        Game     @relation(fields: [gameId], references: [id])
+  player      User     @relation(fields: [playerId], references: [id])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  requirement String
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id             String   @id @default(cuid())
+  userId         String
+  achievementId  String
+  earnedAt       DateTime @default(now())
+
+  user           User        @relation(fields: [userId], references: [id])
+  achievement    Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  target    String
+  createdAt DateTime @default(now())
+}

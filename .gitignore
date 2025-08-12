@@ -1,0 +1,11 @@
+.DS_Store
+**/*.zip
+**/.env*
+**/node_modules/
+**/.next/
+**/out/
+**/dist/
+**/.turbo/
+**/.vercel/
+**/prisma/*.db
+**/prisma/*/migration_lock.toml
