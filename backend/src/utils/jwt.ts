@@ -6,13 +6,11 @@ export type JwtPayload = {
 };
 
 export function signAccessToken(payload: JwtPayload): string {
-  const options: SignOptions = { expiresIn: env.jwtExpiresIn };
-  return jwt.sign(payload as object, env.jwtSecret as Secret, options);
+  return jwt.sign(payload as object, env.jwtSecret as Secret, { expiresIn: env.jwtExpiresIn as any } as SignOptions);
 }
 
 export function signRefreshToken(payload: JwtPayload): string {
-  const options: SignOptions = { expiresIn: env.jwtRefreshExpiresIn };
-  return jwt.sign(payload as object, env.jwtSecret as Secret, options);
+  return jwt.sign(payload as object, env.jwtSecret as Secret, { expiresIn: env.jwtRefreshExpiresIn as any } as SignOptions);
 }
 
 export function verifyToken(token: string): JwtPayload {
