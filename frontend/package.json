@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p $PORT",
+    "start": "serve -s out -l $PORT",
     "lint": "next lint"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "eslint-config-next": "14.2.5",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "serve": "^14.2.3"
   }
 }

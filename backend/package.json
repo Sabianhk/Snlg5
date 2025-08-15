@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
+    "prebuild": "rm -rf dist",
     "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "node dist/src/server.js",
     "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
