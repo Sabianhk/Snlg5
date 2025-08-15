@@ -14,6 +14,9 @@ export default function Page() {
   const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const [players, setPlayers] = useState<PlayerState[]>([]);
   const [diceValue, setDiceValue] = useState<number | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [playToken, setPlayToken] = useState("");
 
   const headers = useMemo(() => ({ Authorization: accessToken ? `Bearer ${accessToken}` : "" }), [accessToken]);
 
@@ -42,13 +45,21 @@ export default function Page() {
     };
   }, []);
 
-  async function demoLogin() {
+  async function login() {
     const res = await api<{ user: User; accessToken: string; refreshToken: string }>("/api/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email: "demo@example.com", password: "demopassword" }),
+      body: JSON.stringify({ email, password }),
     });
     setUser(res.user);
     setAccessToken(res.accessToken);
+  }
+
+  async function register() {
+    await api<{ user: User }>("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ username: email.split("@")[0] || "player", email, password }),
+    });
+    await login();
   }
 
   async function createGame() {
@@ -71,7 +82,7 @@ export default function Page() {
     const result = await api<{ move: { diceValue: number } }>("/api/game/move", {
       method: "POST",
       headers,
-      body: JSON.stringify({ gameId: currentGameId }),
+      body: JSON.stringify({ gameId: currentGameId, playToken: playToken || undefined }),
     });
     setDiceValue(result.move.diceValue);
   }
@@ -80,7 +91,12 @@ export default function Page() {
     <main className="p-6 flex flex-col gap-4 items-center">
       <h1 className="text-2xl font-semibold">Quest & Ladders</h1>
       {!user ? (
-        <button onClick={demoLogin} className="px-3 py-2 rounded bg-cyan-600 hover:bg-cyan-500">Demo Login</button>
+        <div className="flex gap-2 items-center">
+          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="px-2 py-2 rounded bg-slate-800 border border-slate-700" />
+          <input value={password} type="password" onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="px-2 py-2 rounded bg-slate-800 border border-slate-700" />
+          <button onClick={login} className="px-3 py-2 rounded bg-cyan-600 hover:bg-cyan-500">Login</button>
+          <button onClick={register} className="px-3 py-2 rounded bg-emerald-700 hover:bg-emerald-600">Register</button>
+        </div>
       ) : (
         <div className="flex gap-3 items-center">
           <span>Signed in as {user.username}</span>
@@ -91,6 +107,7 @@ export default function Page() {
         <button disabled={!user} onClick={createGame} className="px-3 py-2 rounded bg-emerald-600 disabled:opacity-50">Create Game</button>
         <input value={gameId} onChange={(e) => setGameId(e.target.value)} placeholder="Game ID" className="px-2 py-2 rounded bg-slate-800 border border-slate-700" />
         <button disabled={!user || !gameId} onClick={joinExisting} className="px-3 py-2 rounded bg-indigo-600 disabled:opacity-50">Join</button>
+        <input value={playToken} onChange={(e) => setPlayToken(e.target.value)} placeholder="Play Token (if required)" className="px-2 py-2 rounded bg-slate-800 border border-slate-700" />
         <button disabled={!user || !currentGameId} onClick={roll} className="px-3 py-2 rounded bg-fuchsia-600 disabled:opacity-50">Roll Dice</button>
       </div>
 
