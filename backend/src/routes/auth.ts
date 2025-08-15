@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { loginUser, registerUser } from "@services/authService";
 import { signAccessToken, signRefreshToken, verifyToken } from "@utils/jwt";
+import { prisma } from "@lib/prisma";
 
 const router = Router();
 
@@ -53,6 +54,18 @@ router.post("/refresh", async (req, res, next) => {
 
 router.post("/logout", async (_req, res) => {
   res.json({ message: "Logged out" });
+});
+
+// Admin endpoint to grant a one-time play token for a user in a game
+// Stores a record in AdminLog that makeMove checks when REQUIRE_PLAY_TOKEN=true
+router.post("/admin/grant", async (req, res, next) => {
+  try {
+    const { gameId, userId } = req.body as { gameId: string; userId: string };
+    const log = await prisma.adminLog.create({ data: { adminId: "system", action: "grant", target: `play:${gameId}:${userId}` } });
+    res.json({ playToken: log.id });
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;

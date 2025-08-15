@@ -1,4 +1,5 @@
 import { prisma } from "@lib/prisma";
+import { env } from "@config/env";
 
 // Magic Bridges (ladders) and Portal Traps (snakes)
 const magicBridges: Record<number, number> = {
@@ -49,7 +50,13 @@ export function rollDice(): number {
   return Math.floor(Math.random() * 6) + 1;
 }
 
-export async function makeMove(gameId: string, userId: string, dice?: number) {
+export async function makeMove(gameId: string, userId: string, dice?: number, playToken?: string) {
+  if (env.requirePlayToken) {
+    const token = await prisma.adminLog.findFirst({ where: { target: `play:${gameId}:${userId}`, action: "grant" } });
+    if (!token || (playToken && playToken !== token.id)) {
+      throw { status: 403, message: "Play token required" };
+    }
+  }
   const participant = await prisma.gameParticipant.findFirst({ where: { gameId, userId } });
   if (!participant) throw { status: 404, message: "Player not in this game" };
 

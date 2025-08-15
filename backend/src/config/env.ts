@@ -7,4 +7,6 @@ export const env = {
   jwtSecret: process.env.JWT_SECRET ?? "please-change-me",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? "15m",
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN ?? "7d",
+  adminEmail: process.env.ADMIN_EMAIL ?? "",
+  requirePlayToken: (process.env.REQUIRE_PLAY_TOKEN ?? "false").toLowerCase() === "true",
 };

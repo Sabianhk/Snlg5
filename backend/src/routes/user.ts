@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { env } from "@config/env";
 import { requireAuth } from "@middleware/auth";
 import { prisma } from "@lib/prisma";
 import { z } from "zod";
@@ -10,6 +11,17 @@ router.get("/profile", requireAuth, async (req, res, next) => {
     const userId = (req as any).userId as string;
     const user = await prisma.user.findUnique({ where: { id: userId } });
     res.json({ user: user && { id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl } });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/admin/me", requireAuth, async (req, res, next) => {
+  try {
+    const userId = (req as any).userId as string;
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const isAdmin = !!user && user.email === env.adminEmail && env.adminEmail !== "";
+    res.json({ admin: isAdmin });
   } catch (err) {
     next(err);
   }
