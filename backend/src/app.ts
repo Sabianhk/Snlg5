@@ -21,6 +21,9 @@ export function createApp() {
   app.use(morgan("dev"));
   app.use("/api", apiLimiter);
 
+  // Simple root route for uptime checks
+  app.get("/", (_req, res) => res.send("API OK"));
+
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
   app.use("/api/auth", authRoutes);
